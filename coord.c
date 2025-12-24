@@ -20,11 +20,11 @@ int get_y(coord_t point){
 }
 
 void set_x(coord_t* point, int valeur){ 
-    point->abscisse = valeur;
+    (*point).abscisse = valeur;
 }
 
 void set_y(coord_t* point, int valeur){ 
-    point->ordonnee = valeur;
+    (*point).ordonnee = valeur;
 }
 
 bool memes_coord(coord_t p1, coord_t p2){
