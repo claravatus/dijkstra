@@ -1,101 +1,114 @@
-// test_coord.c
-#include <stdio.h>    // Pour printf
-#include <assert.h>   // Pour la fonction assert()
-#include <math.h>     // Pour les comparaisons de nombres flottants (fabs)
-#include "coord.h"    // Inclut votre structure et les déclarations de fonctions
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "coord.h"
+#include "tests.h"
 
-// Définition d'une marge d'erreur pour les comparaisons de floats (nécessaire)
-#define EPSILON 0.0001
-
-// Fonction d'aide pour comparer deux flottants
-int float_egal(float a, float b) {
-    // Vérifie si la valeur absolue de la différence est inférieure à l'EPSILON
-    return fabs(a - b) < EPSILON;
-}
-
-// Fonction principale de test
-void test_module_coord() {
-    printf("--- Démarrage des tests du module coord ---\n\n");
-
-    // ----------------------------------------------------
-    // TEST 1 : Création et Getters
-    // ----------------------------------------------------
-    printf("1. Test de creer_coord et get_x/get_y...\n");
-    coord_t p1 = creer_coord(10, 20);
-
-    // Vérification
-    assert(get_x(p1) == 10);
-    assert(get_y(p1) == 20);
-    printf("   -> Création et getters OK.\n");
-
-    // ----------------------------------------------------
-    // TEST 2 : Setters (Modification)
-    // ----------------------------------------------------
-    printf("2. Test de set_x et set_y...\n");
-    // Rappel: Les setters fonctionnent sur un pointeur dans la version corrigée
-    set_x(&p1, -5);
-    set_y(&p1, 0);
-
-    // Vérification
-    assert(get_x(p1) == -5);
-    assert(get_y(p1) == 0);
-    printf("   -> Setters OK.\n");
-
-    // ----------------------------------------------------
-    // TEST 3 : Comparaison de coordonnées (memes_coord)
-    // ----------------------------------------------------
-    printf("3. Test de memes_coord...\n");
-    coord_t p2 = creer_coord(5, 5);
-    coord_t p3 = creer_coord(5, 5);
-    coord_t p4 = creer_coord(1, 2);
-
-    // Vérification de l'égalité
-    assert(memes_coord(p2, p3) == true);
-    // Vérification de l'inégalité
-    assert(memes_coord(p2, p4) == false);
-    printf("   -> Comparaison (memes_coord) OK.\n");
-
-    // ----------------------------------------------------
-    // TEST 4 : Translation
-    // ----------------------------------------------------
-    printf("4. Test de translation...\n");
-    coord_t p5 = creer_coord(10, 10);
-    coord_t p5_trans = translation(p5, 5, -2); // Résultat attendu : (15, 8)
-
-    // Vérification
-    assert(get_x(p5_trans) == 15);
-    assert(get_y(p5_trans) == 8);
-    printf("   -> Translation OK.\n");
-
-
-    // ----------------------------------------------------
-    // TEST 5 : Distance Euclidienne
-    // ----------------------------------------------------
-    printf("5. Test de distance_euclidienne...\n");
-    coord_t a = creer_coord(1, 1);
-    coord_t b = creer_coord(4, 5);
-
-    // Calcul manuel attendu : sqrt((4-1)^2 + (5-1)^2) = sqrt(3^2 + 4^2) = sqrt(9 + 16) = sqrt(25) = 5.0
-    float distance_attendue = 5.0f;
-    float distance_obtenue = distance_euclidienne(a, b);
-
-    // Vérification des flottants
-    assert(float_egal(distance_obtenue, distance_attendue));
-    
-    // Cas simple : distance à soi-même
-    assert(float_egal(distance_euclidienne(a, a), 0.0f));
-    
-    // Cas avec racine carrée non entière : (0,0) à (1,1) -> sqrt(2) ≈ 1.414213...
-    coord_t zero = creer_coord(0, 0);
-    coord_t un_un = creer_coord(1, 1);
-    assert(float_egal(distance_euclidienne(zero, un_un), 1.414213f));
-    
-    printf("   -> Distance Euclidienne OK.\n");
-    
-    printf("\n--- Tous les tests ont réussi ! (Asserts OK) ---\n");
-}
+#define PRECISION 1e-4
 
 int main() {
-    test_module_coord();
+    INITIALIZE_TESTS();
+    SET_ANALYSIS("test_coord.csv");
+
+    BEGIN_SECTION("coord/base")
+        BEGIN_TESTI("cretation-access")
+            coord_t c = creer_coord(11, -5);
+            ASSERT_EQ(get_x(c), 11);
+            ASSERT_EQ(get_y(c), -5);
+        END_TEST
+
+        BEGIN_TESTI("set_x")
+            coord_t c = creer_coord(22, 31);
+            set_x(&c, -18);
+            ASSERT_EQ(get_x(c), -18);
+            ASSERT_EQ(get_y(c),  31);
+        END_TEST
+
+        BEGIN_TESTI("set_y")
+            coord_t c = creer_coord(61, 87);
+            set_y(&c, 91);
+            ASSERT_EQ(get_x(c), 61);
+            ASSERT_EQ(get_y(c), 91);
+        END_TEST
+
+        REPORT_TO_STDOUT;
+        REPORT_ANALYSIS;
+    END_SECTION()
+
+    BEGIN_SECTION("coord/comparaison")
+        BEGIN_TESTI("memes_coord-true")
+            coord_t c1 = creer_coord(21, 11);
+            coord_t c2 = creer_coord(21, 11);
+            ASSERT(memes_coord(c1, c2));
+        END_TEST
+
+        BEGIN_TESTI("memes_coord-false")
+            coord_t c1 = creer_coord(21, 11);
+            coord_t c2 = creer_coord(11, 11);
+            ASSERT(!memes_coord(c1, c2));
+        END_TEST
+
+        BEGIN_TESTI("memes_coord-false-2")
+            coord_t c1 = creer_coord(11, 11);
+            coord_t c2 = creer_coord(11, 21);
+            ASSERT(!memes_coord(c1, c2));
+        END_TEST
+
+        REPORT_TO_STDOUT;
+        REPORT_ANALYSIS;
+    END_SECTION()
+
+    BEGIN_SECTION("coord/translation")
+        BEGIN_TESTI("translation-0")
+            coord_t c = creer_coord(10, 15);
+            coord_t ct = translation(c, 0, 0);
+            ASSERT(memes_coord(c, ct));
+        END_TEST
+
+        BEGIN_TESTI("translation-x")
+            coord_t c = creer_coord(11, -16);
+            coord_t ct = translation(c, -5, 0);
+            ASSERT_EQ(get_x(ct), 6);
+            ASSERT_EQ(get_y(ct), -16);
+        END_TEST
+
+        BEGIN_TESTI("translation-y")
+            coord_t c = creer_coord(-7, 21);
+            coord_t ct = translation(c, 0, 5);
+            ASSERT_EQ(get_x(ct), -7);
+            ASSERT_EQ(get_y(ct), 26);
+        END_TEST
+
+        REPORT_TO_STDOUT;
+        REPORT_ANALYSIS;
+    END_SECTION()
+
+    BEGIN_SECTION("coord/distance")
+        BEGIN_TESTI("distance-0")
+            coord_t c1 = creer_coord(2, 3);
+            ASSERT_EQ_F(distance_euclidienne(c1, c1), 0.0, PRECISION);
+        END_TEST
+
+        BEGIN_TESTI("distance-1")
+            coord_t c1 = creer_coord(5, 4);
+            coord_t c2 = creer_coord(5, 2);
+            ASSERT_EQ_F(distance_euclidienne(c1, c2), 2.0, PRECISION);
+        END_TEST
+
+        BEGIN_TESTI("distance-2")
+            coord_t c1 = creer_coord(2, -5);
+            coord_t c2 = creer_coord(2, 2);
+            ASSERT_EQ_F(distance_euclidienne(c1, c2), 7.0, PRECISION);
+        END_TEST
+
+        REPORT_TO_STDOUT;
+        REPORT_ANALYSIS;
+    END_SECTION()
+
+    END_ANALYSIS;
+
     return 0;
 }
+
+
+
