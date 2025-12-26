@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU General Public License along with 
 // libt(est). If not, see <https://www.gnu.org/licenses/>.
 //
-// libt(est) - Copyright (c) 2023 Guillaume Dupont
+// libt(est) - Copyright (c) 2023-2024 Guillaume Dupont
 // Contact: <guillaume.dupont@toulouse-inp.fr>
 /**
- * @mainpage libt(est) &ndash; Framework de test léger pour le C
+ * @mainpage `libt(est)` &ndash; Framework de test léger pour le C
  *
  * Cette librairie suit un peu le même principe que JUnit et autres. Un test est
  * représenté par un élément de type abstrait @ref __test_case, qui contient diverses
@@ -113,13 +113,6 @@
  * ...
  * ```
  *
- * La librairie mais aussi à disposition une macro avec format (à la `printf`), @ref FAILF :
- * ```c
- * ...
- * FAILF("Test échoué car la valeur %d est trop grande (> %d)", valeur, 121);
- * ...
- * ```
- *
  * En plus de @ref FAIL, la librairie propose diverses _assertions_, des instructions qui ne font rien
  * lorsque les arguments correspondent, et qui échouent le test sinon.
  *
@@ -189,7 +182,7 @@
  * `SIGILL`, `SIGSEGV`, `SIGSYS`, `SIGUSR1`, `SIGUSR2`, `SIGXCPU`, `SIGXFSZ`, `SIGTERM`.
  *
  * @author G. Dupont <guillaume.dupont@irit.fr>
- * @version 0.5.0
+ * @version 0.6.0
  *
  * Changelog:
  *  - [0.1.0] Premier jet du framework
@@ -197,6 +190,7 @@
  *  - [0.3.0] Correction de bugs et détournement de signaux
  *  - [0.4.0] Ajout des timeout
  *  - [0.5.0] Ajout du check de type
+ *  - [0.6.0] Possibilité d'ajouter ses propres fonctions ASSERT
  */
 /**
  * @file tests.h
@@ -678,6 +672,42 @@ void initialize_tests();
 #define ASSERT_TYPE_CONFORM(e, t) {}
 #endif
 
+/**
+ * Permet de déclarer/définir une nouvelle fonction à la ASSERT, qui pourra ensuite être appelée
+ * à l'aide de @ref CALL_ASSERT_FUN.
+ *
+ * Il s'agit d'une macro variadique avec pour premier paramètre le nom du symbole et comme paramètres
+ * suivants les paramètres de la fonction. Cela remplace la déclaration normale du symbole.
+ * @code
+ * void ASSERT_FUN(ma_fonction, int arg1, double arg2, char* arg3) {...
+ * @endcode
+ *
+ * Cette fonction est compatible avec les déclarations variadiques :
+ * @code
+ * void ASSERT_FUN(ma_fonction_var, int arg1, ...) {...
+ * @endcode
+ *
+ * En interne, la macro ASSERT_FUN "upgrade" la fonction pour qu'elle accepte le test case courant
+ * (comme les autres fonctions assert de la bibliothèque).
+ *
+ * @param fun nom du symbole
+ */
+#define ASSERT_FUN(fun, ...)        fun(struct __test_case* __the_test, __VA_ARGS__)
+
+/**
+ * Appelle une fonction assert utilisateur précédemment définie avec @ref ASSERT_FUN. Cette macro
+ * est variadique de façon à laisser la possibilité de passer tous les arguments nécessaires à la
+ * fonction.
+ * 
+ * Comme cette macro est étendue avant la compilation, il y a bien contrôle de type de la part du
+ * compilateur (normalement). 
+ *
+ * En interne, cette fonction se charge d'appeler correctement le symbole donné, en lui passant
+ * notamment le test case courant.
+ *
+ * @param fun nom du symbole à appeler
+ */
+#define CALL_ASSERT_FUN(fun, ...)   fun(__the_test, __VA_ARGS__)
 
 #endif
 
