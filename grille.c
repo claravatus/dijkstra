@@ -45,6 +45,7 @@ bool dans_les_bornes(grille_t grille, coord_t position) {
 }
 
 coord_t inferieur_gauche(grille_t grille) {
+    (void)grille;
     return creer_coord(0, 0); 
 }
 
