@@ -1,0 +1,13 @@
+#,File,Section,Test,Succ?,Fail?,Sign?,Time?,Unkn?,Line,Signum
+0,test_coord.c,"coord/base","cretation-access",1,,,,,,
+1,test_coord.c,"coord/base","set_x",1,,,,,,
+2,test_coord.c,"coord/base","set_y",1,,,,,,
+3,test_coord.c,"coord/comparaison","memes_coord-true",1,,,,,,
+4,test_coord.c,"coord/comparaison","memes_coord-false",1,,,,,,
+5,test_coord.c,"coord/comparaison","memes_coord-false-2",1,,,,,,
+6,test_coord.c,"coord/translation","translation-0",1,,,,,,
+7,test_coord.c,"coord/translation","translation-x",1,,,,,,
+8,test_coord.c,"coord/translation","translation-y",1,,,,,,
+9,test_coord.c,"coord/distance","distance-0",1,,,,,,
+10,test_coord.c,"coord/distance","distance-1",1,,,,,,
+11,test_coord.c,"coord/distance","distance-2",1,,,,,,
