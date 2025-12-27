@@ -1,4 +1,3 @@
-// coord.c
 #include "coord.h"
 #include <math.h>
 #include <stdlib.h> 
