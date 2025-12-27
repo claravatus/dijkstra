@@ -3,6 +3,9 @@
 #include "coord.h"
 #include <stdbool.h>
 
+#define COUT_INFINI (1.0/0.0) 
+#define COORDONNEE_DEFAUT (coord_t){.abscisse = -1, .ordonnee = -1} 
+
 typedef struct liste_noeud_s liste_noeud_t;
 liste_noeud_t* creer_liste();
 
@@ -23,6 +26,5 @@ coord_t min_noeud_liste(const liste_noeud_t* liste);
 void inserer_noeud_liste(liste_noeud_t* liste, coord_t noeud, float cout, coord_t precedent);
 
 void supprimer_noeud_liste(liste_noeud_t* liste, coord_t noeud);
-
 
 #endif
