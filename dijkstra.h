@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include "coord.h"
 #include "grille.h"
+#include "liste_noeud.h"
 
 float dijkstra(
         grille_t grille,
