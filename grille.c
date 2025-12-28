@@ -5,10 +5,11 @@
 #include <assert.h>
 #include <string.h>
 
+// pour calculer la position d'un point dans le tableau créé (grille)
 static size_t coord_lin(grille_t grille, coord_t position) {
     int x = get_x(position); 
     int y = get_y(position); 
-    assert(dans_les_bornes(grille, position)); 
+    assert(dans_les_bornes(grille, position)); // au cas où ?
     return (size_t)(y * (*grille).largeur + x);
 }
 
@@ -22,7 +23,7 @@ grille_t creer_grille(int largeur, int profondeur) {
 }
 
 void detruire_grille(grille_t grille) {
-    if (grille != NULL) {
+    if (grille != NULL) { // donc pas vide
         free((*grille).hauteurs);
         free(grille);
     }
@@ -45,7 +46,7 @@ bool dans_les_bornes(grille_t grille, coord_t position) {
 }
 
 coord_t inferieur_gauche(grille_t grille) {
-    (void)grille;
+    (void)grille; // grille ne sert à rien ici donc on explicite qu'on l'utilise pas ???
     return creer_coord(0, 0); 
 }
 
@@ -64,22 +65,30 @@ float get_hauteur(grille_t grille, coord_t position) {
 }
 
 size_t get_voisins(grille_t grille, coord_t position, float seuil, coord_t** voisins) {
-    const int dx[] = {0, 0, 1, -1}, dy[] = {1, -1, 0, 0};
+    const int dx[] = {0, 0, 1, -1}, dy[] = {1, -1, 0, 0}; // on cherche les directions pour chercher
     float h_centre = get_hauteur(grille, position);
     size_t nb = 0;
     coord_t temp[4]; 
     for (int i = 0; i < 4; i++) {
         coord_t v_pos = creer_coord(get_x(position) + dx[i], get_y(position) + dy[i]);
         if (dans_les_bornes(grille, v_pos)) {
-            if (fabsf(h_centre - get_hauteur(grille, v_pos)) <= seuil) {
-                temp[nb++] = v_pos;
+            float h_voisin = get_hauteur(grille, v_pos);
+            float diff = h_centre - h_voisin;
+            if (diff < 0) {
+                diff = -diff; // pour avoir la valeur absolue
+             } 
+            if (diff <= seuil) {
+                temp[nb] = v_pos;
+                nb++;
             }
         }
     }
-    *voisins = (coord_t*)malloc(nb * sizeof(coord_t)); // on alloue la mémoire
-    for (size_t i = 0; i < nb; i++) {
-        (*voisins)[i] = temp[i]; // on stocke
-    } 
+    *voisins = malloc(nb * sizeof(coord_t)); // on donne de la mémoire
+    if (*voisins != NULL) { 
+        for (size_t i = 0; i < nb; i++) {
+            (*voisins)[i] = temp[i]; // on stocke
+        }
+    }
     return nb;
 }
 
