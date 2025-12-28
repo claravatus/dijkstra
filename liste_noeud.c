@@ -12,17 +12,19 @@ struct liste_noeud_s {
     cellule_t* tete;
 };
 
-
 static cellule_t* chercher_cellule(const liste_noeud_t* liste, coord_t noeud) {
-    if (liste == NULL) return NULL;
-    cellule_t* courante = (*liste).tete;
-    while (courante != NULL) {
-        if (coord_egal((*courante).noeud, noeud)) {
-            return courante;
+    cellule_t* trouve = NULL; // initialisation
+    if (liste != NULL) {
+        cellule_t* courante = (*liste).tete;
+        while (courante != NULL && trouve == NULL) { // on cherche tant qu'on a pas trouvé ou qu'on est pas à la fin
+            if (coord_egal((*courante).noeud, noeud)) {
+                trouve = courante; 
+            } else {
+                courante = (*courante).suivant; 
+            }
         }
-        courante = (*courante).suivant;
     }
-    return NULL;
+    return trouve;
 }
 
 
@@ -53,73 +55,81 @@ bool contient_noeud_liste(const liste_noeud_t* liste, coord_t noeud) {
 
 
 float cout_noeud_liste(const liste_noeud_t* liste, coord_t noeud) {
+    float resultat = COUT_INFINI; // initialisation 
     cellule_t* cellule = chercher_cellule(liste, noeud);
     if (cellule != NULL) {
-        return (*cellule).cout;
+        resultat = (*cellule).cout;
     }
-    return COUT_INFINI;
+    return resultat ;
 }
 
 
 coord_t precedent_noeud_liste(const liste_noeud_t* liste, coord_t noeud) {
-    cellule_t* c = chercher_cellule(liste, noeud);
-    if (c != NULL) {
-        return (*c).precedent;
+    coord_t resultat = INVALIDE;
+    cellule_t* cellule = chercher_cellule(liste, noeud);
+    if (cellule != NULL) {
+        resultat = (*cellule).precedent;
     }
-    return COORDONNEE_DEFAUT;
+    return resultat;
 }
 
-
 coord_t min_noeud_liste(const liste_noeud_t* liste) {
-    if (liste == NULL || (*liste).tete == NULL) {
-        return COORDONNEE_DEFAUT;
-    }
-    cellule_t* courante = (*liste).tete;
-    cellule_t* min = courante;
-    while (courante != NULL) {
-        if ((*courante).cout < (*min).cout) {
-            min = courante;
+    coord_t resultat = INVALIDE;
+    if (liste != NULL && (*liste).tete != NULL) {
+        cellule_t* courante = (*liste).tete;
+        cellule_t* cellule_min = (*liste).tete;
+        while (courante != NULL) {
+            if ((*courante).cout < (*cellule_min).cout) {
+                cellule_min = courante; 
+            }
+            courante = (*courante).suivant;
         }
-        courante = (*courante).suivant;
+        resultat = (*cellule_min).noeud;
     }
-    return (*min).noeud;
+    return resultat; 
 }
 
 void inserer_noeud_liste(liste_noeud_t* liste, coord_t noeud, float cout, coord_t precedent) {
-    if (liste == NULL) return;
-    cellule_t* c = chercher_cellule(liste, noeud);
-    if (c != NULL) {
-        (*c).cout = cout;
-        (*c).precedent = precedent;
-        return;
+    if (liste != NULL) { // est-ce que le noeud existe 
+        cellule_t* cellule = chercher_cellule(liste, noeud);
+        if (cellule != NULL) { // le point existe déjà donc on modif juste ce qu'on veut 
+            (*cellule).cout = cout;
+            (*cellule).precedent = precedent;
+        } 
+        else { // le point est nouveau : on le rajoute 
+            cellule_t* nouvelle = malloc(sizeof(*nouvelle));
+            if (nouvelle != NULL) {
+                (*nouvelle).noeud = noeud;
+                (*nouvelle).cout = cout;
+                (*nouvelle).precedent = precedent;
+                (*nouvelle).suivant = (*liste).tete;
+                (*liste).tete = nouvelle;
+            }
+        }
     }
-    cellule_t* nouvelle = malloc(sizeof(cellule_t));
-    if (nouvelle == NULL) return;
-    (*nouvelle).noeud = noeud;
-    (*nouvelle).cout = cout;
-    (*nouvelle).precedent = precedent;
-    (*nouvelle).suivant = (*liste).tete;
-    (*liste).tete = nouvelle;
 }
-
 
 void supprimer_noeud_liste(liste_noeud_t* liste, coord_t noeud) {
-    if (liste == NULL || (*liste).tete == NULL) return;
-    cellule_t* courante = (*liste).tete;
-    cellule_t* precedente = NULL;
-    while (courante != NULL) {
-        if (coord_egal((*courante).noeud, noeud)) {
-            if (precedente == NULL) {
-                (*liste).tete = (*courante).suivant;
+    if (liste != NULL && (*liste).tete != NULL) {
+        cellule_t* courante = (*liste).tete;
+        cellule_t* precedente = NULL;
+        cellule_t* a_supprimer = NULL;
+        while (courante != NULL && a_supprimer == NULL) {
+            if (coord_egal((*courante).noeud, noeud)) {
+                a_supprimer = courante; // ig on a trouvé ici
             } else {
-                (*precedente).suivant = (*courante).suivant;
+                precedente = courante; 
+                courante = (*courante).suivant;
             }
-            free(courante);
-            return;
         }
-        precedente = courante;
-        courante = (*courante).suivant;
+        if (a_supprimer != NULL) {
+            if (precedente == NULL) {
+                (*liste).tete = (*a_supprimer).suivant;
+            } else {
+                (*precedente).suivant = (*a_supprimer).suivant;
+            }
+            free(a_supprimer); 
+        }
     }
 }
-
 

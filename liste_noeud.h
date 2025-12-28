@@ -3,8 +3,8 @@
 #include "coord.h"
 #include <stdbool.h>
 
-#define COUT_INFINI (1.0/0.0) 
-#define COORDONNEE_DEFAUT (coord_t){.abscisse = -1, .ordonnee = -1} 
+#define COUT_INFINI (1.0/0.0) // ce qui équivaut à un "infini" normalement puisque c'est pas possibe la division par 0
+#define INVALIDE (coord_t){.abscisse = -1, .ordonnee = -1} // utile pour que le programme dise si une cellule existe
 
 typedef struct liste_noeud_s liste_noeud_t;
 liste_noeud_t* creer_liste();
