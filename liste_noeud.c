@@ -17,7 +17,7 @@ static cellule_t* chercher_cellule(const liste_noeud_t* liste, coord_t noeud) {
     if (liste != NULL) {
         cellule_t* courante = (*liste).tete;
         while (courante != NULL && trouve == NULL) { // on cherche tant qu'on a pas trouvé ou qu'on est pas à la fin
-            if (coord_egal((*courante).noeud, noeud)) {
+            if (memes_coord((*courante).noeud, noeud)) {
                 trouve = courante; 
             } else {
                 courante = (*courante).suivant; 
@@ -47,6 +47,13 @@ void detruire_liste(liste_noeud_t** liste) {
     }
     free(*liste);
     *liste = NULL;
+}
+
+bool est_vide_liste(const liste_noeud_t* liste) {
+    if (liste == NULL || (*liste).tete == NULL) {
+        return true;
+    }
+    return false;
 }
 
 bool contient_noeud_liste(const liste_noeud_t* liste, coord_t noeud) {
@@ -115,7 +122,7 @@ void supprimer_noeud_liste(liste_noeud_t* liste, coord_t noeud) {
         cellule_t* precedente = NULL;
         cellule_t* a_supprimer = NULL;
         while (courante != NULL && a_supprimer == NULL) {
-            if (coord_egal((*courante).noeud, noeud)) {
+            if (memes_coord((*courante).noeud, noeud)) {
                 a_supprimer = courante; // ig on a trouvé ici
             } else {
                 precedente = courante; 
