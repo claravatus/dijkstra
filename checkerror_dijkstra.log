@@ -1,0 +1,8 @@
+dijkstra.c: In function ‘dijkstra’:
+dijkstra.c:76:1: error: expected declaration or statement at end of input
+   76 | }
+      | ^
+dijkstra.c: In function ‘dijkstra’:
+dijkstra.c:76:1: error: expected declaration or statement at end of input
+   76 | }
+      | ^

@@ -1,64 +1,76 @@
 #include "dijkstra.h"
 #include "liste_noeud.h"
+#include "grille.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-static void construire_chemin_vers(liste_noeud_t* cellule_connue, coord_t actuel, liste_noeud_t* chemin) {
-    if (memes_coord(actuel, INVALIDE)) {
-        return;
+// algo C (je voyais pas trop l'intérêt de le mettre dans le .h )
+static void construire_chemin_vers(coord_t n, coord_t source, liste_noeud_t* visites, liste_noeud_t* chemin) {
+    if (!memes_coord(n, source)) {
+        // (C-1) Soit n_p = prec(n)
+        coord_t n_p = precedent_noeud_liste(visites, n);
+        // (C-3.1) Appel récursif vers le précédent
+        construire_chemin_vers(n_p, source, visites, chemin);
+        // (C-3.2) Ajouter au chemin le noeud n_p
+        float cout_np = cout_noeud_liste(visites, n_p);
+        coord_t prec_np = precedent_noeud_liste(visites, n_p);
+        inserer_noeud_liste(chemin, n_p, cout_np, prec_np);
     }
-    coord_t cellule_suite = precedent_noeud_liste(cellule_connue, actuel);
-    float cout = cout_noeud_liste(cellule_connue, actuel);
-    construire_chemin_vers(cellule_connue, cellule_suite, chemin);
-    inserer_noeud_liste(chemin, actuel, cout, cellule_suite);
-}
+    // ig si la condition n'est pas remplie ça ne fait plus rien et algo fini 
+} 
 
+// algo D 
 float dijkstra(grille_t grille, coord_t source, coord_t destination, float seuil, liste_noeud_t** chemin) {
     liste_noeud_t* a_visiter = creer_liste();
-    liste_noeud_t* deja_vus = creer_liste();
-    inserer_noeud_liste(a_visiter, source, 0.0, INVALIDE);
+    liste_noeud_t* visites = creer_liste();
     float resultat_cout = COUT_INFINI;
-    // algo D ig
-    while (!est_vide_liste(a_visiter)) {
-        coord_t coord1 = min_noeud_liste(a_visiter);
-        float cout_coord1 = cout_noeud_liste(a_visiter, coord1);
-        coord_t prec_coord1 = precedent_noeud_liste(a_visiter, coord1);
-        inserer_noeud_liste(deja_vus, coord1, cout_coord1, prec_coord1);
-        supprimer_noeud_liste(a_visiter, coord1);
-        if (memes_coord(coord1, destination)) {
-            resultat_cout = cout_coord1;
-            break;
-        }
-        coord_t* voisins = NULL;
-        size_t nb_voisins = get_voisins(grille, coord1, seuil, &voisins);
-
-        for (size_t i = 0; i < nb_voisins; i++) {
-            coord_t coord2 = voisins[i];
-            float nouveau_cout = cout_coord1 + 1.0;
-            if (!contient_noeud_liste(deja_vus, coord2)) {
-                if (contient_noeud_liste(a_visiter, coord2)) {
-                    if (nouveau_cout < cout_noeud_liste(a_visiter, coord2)) {
-                        supprimer_noeud_liste(a_visiter, coord2);
-                        inserer_noeud_liste(a_visiter, coord2, nouveau_cout, coord1);
+    bool trouve = false;
+    // (D-1) Ajouter le noeud de départ à cout 0
+    inserer_noeud_liste(a_visiter, source, 0.0, source);
+    // (D-2) Tant qu'il existe noeud, faire :
+    while (!est_vide_liste(a_visiter) && !trouve) {
+        // (D-2.1) Noeud courant n_c de coût minimal
+        coord_t n_c = min_noeud_liste(a_visiter);
+        float cout_nc = cout_noeud_liste(a_visiter, n_c);
+        coord_t prec_nc = precedent_noeud_liste(a_visiter, n_c);
+        // (D-2.2) Ajouter n_c dans Visités
+        inserer_noeud_liste(visites, n_c, cout_nc, prec_nc);
+        // (D-2.3) Supprimer n_c de AVisiter
+        supprimer_noeud_liste(a_visiter, n_c);
+        if (memes_coord(n_c, destination)) {
+            resultat_cout = cout_nc;
+            trouve = true; 
+        } else {
+            // (D-2.4) Exploration des voisins (que si on trouve le chemin du coup)
+            coord_t* voisins = NULL;
+            size_t nb_voisins = get_voisins(grille, n_c, seuil, &voisins);
+            if (nb_voisins > 0 && voisins != NULL) { // On ne traite que s'il y a des voisins
+                for (size_t i = 0; i < nb_voisins; i++) {
+                    coord_t n_v = voisins[i];
+                    if (!contient_noeud_liste(visites, n_v)) {
+                        float delta_prime = cout_nc + 1.0; 
+                        float delta = cout_noeud_liste(a_visiter, n_v);
+                        if (delta_prime < delta) {
+                            inserer_noeud_liste(a_visiter, n_v, delta_prime, n_c);
+                        }
                     }
-                } else {
-                    inserer_noeud_liste(a_visiter, coord2, nouveau_cout, coord1);
                 }
+                free(voisins); 
+                voisins = NULL;
             }
         }
-        free(voisins); 
-    }
-    // ça c l'algo C 
+
     if (chemin != NULL) {
         if (resultat_cout != COUT_INFINI) {
             *chemin = creer_liste();
-            construire_chemin_vers(deja_vus, destination, *chemin);
+            construire_chemin_vers(destination, source, visites, *chemin);
+            inserer_noeud_liste(*chemin, destination, resultat_cout, precedent_noeud_liste(visites, destination));
         } else {
-            *chemin = NULL; 
+            *chemin = NULL;
         }
     }
-    detruire_liste(&a_visiter);
-    detruire_liste(&deja_vus);
 
+    detruire_liste(&a_visiter);
+    detruire_liste(&visites);
     return resultat_cout;
 }
