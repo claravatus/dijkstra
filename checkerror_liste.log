@@ -1,0 +1,16 @@
+Vérification de la syntaxe pour liste_noeud.h :
+gcc -std=c99 -c -Wall -Wextra -pedantic -Werror -fsyntax-only -x c liste_noeud.h
+Vérification de la syntaxe pour liste_noeud.c :
+gcc -std=c99 -c -Wall -Wextra -pedantic -Werror -fsyntax-only -x c liste_noeud.c
+
+[le header liste_noeud.h est correctement gardé]
+
+[Définition de liste_noeud_t]
+
+[Fonction est_vide_liste]
+
+[Fonction inserer_noeud_liste]
+
+[Fonction cout_noeud_liste]
+
+[Fonction min_noeud_liste]

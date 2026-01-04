@@ -1,0 +1,7 @@
+#,File,Section,Test,Succ?,Fail?,Sign?,Time?,Unkn?,Line,Signum
+0,test_liste_noeud.c,"liste/gestion-basique","creation-est_vide",1,,,,,,
+1,test_liste_noeud.c,"liste/gestion-basique","insertion-contient",1,,,,,,
+2,test_liste_noeud.c,"liste/recherche-et-couts","precedent-et-cout",1,,,,,,
+3,test_liste_noeud.c,"liste/recherche-et-couts","noeud-inexistant",1,,,,,,
+4,test_liste_noeud.c,"liste/algorithme-min","recherche-min",1,,,,,,
+5,test_liste_noeud.c,"liste/suppression","supprimer-noeud",1,,,,,,

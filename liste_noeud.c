@@ -1,5 +1,8 @@
 #include "liste_noeud.h"
 #include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include <string.h>
 
 typedef struct cellule {
     coord_t noeud;
